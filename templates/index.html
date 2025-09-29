@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html>
+<html lang="en">
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width,initial-scale=1" />
@@ -9,14 +9,23 @@
 <body>
   <div class="container">
     <h1>Ask a Question</h1>
+
     <textarea id="questionBox" placeholder="What's on your mind?"></textarea>
     <button id="createButton">Create Link</button>
 
+    <!-- Appears after creating a question -->
     <div id="linkContainer" style="display:none; margin-top:16px;">
       <p>Share this link:</p>
       <input type="text" id="shareLink" readonly>
+
       <div style="margin-top:12px;">
         <button id="summaryButton">Open Summary Page</button>
+      </div>
+
+      <!-- Live counter (only visible on this page) -->
+      <div id="counterCard" class="stat-card" style="display:none; margin-top:16px;">
+        <div class="stat-label">Opinions shared</div>
+        <div class="stat-value" id="opinionCount">0</div>
       </div>
     </div>
   </div>

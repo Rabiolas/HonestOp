@@ -103,6 +103,14 @@ def submit_opinion(question_id: str):
     q["opinions"].append(opinion_text)
     return jsonify({"success": True}), 200
 
+@app.route("/api/opinion-count/<question_id>", methods=["GET"])
+def opinion_count(question_id: str):
+    q = questions_db.get(question_id)
+    if not q:
+        return jsonify({"error": "Question not found"}), 404
+    return jsonify({"count": len(q["opinions"])}), 200
+
+
 @app.route("/api/summarize/<question_id>", methods=["GET"])
 def summarize_opinions(question_id: str):
     """

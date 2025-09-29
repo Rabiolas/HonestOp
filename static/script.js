@@ -1,4 +1,37 @@
-document.getElementById('createButton').addEventListener('click', async function () {
+const createBtn = document.getElementById('createButton');
+const linkContainer = document.getElementById('linkContainer');
+const shareLink = document.getElementById('shareLink');
+
+const counterCard = document.getElementById('counterCard');
+const opinionCountEl = document.getElementById('opinionCount');
+
+let currentQuestionId = null;
+let pollTimer = null;
+
+function startCounterPolling(qid) {
+  currentQuestionId = qid;
+  counterCard.style.display = 'block';
+
+  async function tick() {
+    try {
+      const res = await fetch(`/api/opinion-count/${qid}`);
+      if (!res.ok) return; // silently ignore
+      const data = await res.json();
+      if (typeof data.count === 'number') {
+        opinionCountEl.textContent = data.count;
+      }
+    } catch (_) {
+      // ignore network hiccups
+    }
+  }
+
+  // run immediately, then every 3s
+  tick();
+  if (pollTimer) clearInterval(pollTimer);
+  pollTimer = setInterval(tick, 3000);
+}
+
+createBtn.addEventListener('click', async function () {
   const questionEl = document.getElementById('questionBox');
   const question = (questionEl.value || '').trim();
   if (!question) return;
@@ -16,18 +49,14 @@ document.getElementById('createButton').addEventListener('click', async function
     }
     const data = await res.json();
     if (data.link) {
-      const linkContainer = document.getElementById('linkContainer');
-      const shareLink = document.getElementById('shareLink');
-      const summaryButton = document.getElementById('summaryButton');
-
-      shareLink.value = window.location.origin + data.link;
       const qid = data.link.split('/').pop();
-      const summaryLink = window.location.origin + `/summary/${qid}`;
-
-      summaryButton.onclick = () => { window.location.href = summaryLink; };
+      shareLink.value = window.location.origin + data.link;
       linkContainer.style.display = 'block';
+
+      // start live counter for this newly created question
+      startCounterPolling(qid);
     }
   } catch (err) {
-    alert('Error creating question.');
+    alert('Network error creating question.');
   }
 });
