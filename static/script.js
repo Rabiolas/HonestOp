@@ -1,27 +1,27 @@
 const createBtn = document.getElementById('createButton');
 const linkContainer = document.getElementById('linkContainer');
 const shareLink = document.getElementById('shareLink');
+const summaryBtn = document.getElementById('summaryButton');
 
 const counterCard = document.getElementById('counterCard');
 const opinionCountEl = document.getElementById('opinionCount');
 
-let currentQuestionId = null;
 let pollTimer = null;
 
 function startCounterPolling(qid) {
-  currentQuestionId = qid;
-  counterCard.style.display = 'block';
+  // Show the card (it might be inside linkContainer)
+  if (counterCard) counterCard.style.display = 'block';
 
   async function tick() {
     try {
       const res = await fetch(`/api/opinion-count/${qid}`);
-      if (!res.ok) return; // silently ignore
+      if (!res.ok) return;
       const data = await res.json();
-      if (typeof data.count === 'number') {
+      if (typeof data.count === 'number' && opinionCountEl) {
         opinionCountEl.textContent = data.count;
       }
     } catch (_) {
-      // ignore network hiccups
+      // ignore transient errors
     }
   }
 
@@ -34,7 +34,10 @@ function startCounterPolling(qid) {
 createBtn.addEventListener('click', async function () {
   const questionEl = document.getElementById('questionBox');
   const question = (questionEl.value || '').trim();
-  if (!question) return;
+  if (!question) {
+    alert('Please type a question first.');
+    return;
+  }
 
   try {
     const res = await fetch('/api/create-question', {
@@ -50,13 +53,22 @@ createBtn.addEventListener('click', async function () {
     const data = await res.json();
     if (data.link) {
       const qid = data.link.split('/').pop();
+
+      // show the share link
       shareLink.value = window.location.origin + data.link;
       linkContainer.style.display = 'block';
 
-      // start live counter for this newly created question
+      // wire summary button
+      if (summaryBtn) {
+        const summaryLink = window.location.origin + `/summary/${qid}`;
+        summaryBtn.onclick = () => { window.location.href = summaryLink; };
+      }
+
+      // start live counter
       startCounterPolling(qid);
     }
   } catch (err) {
     alert('Network error creating question.');
   }
 });
+
