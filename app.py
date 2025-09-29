@@ -126,7 +126,7 @@ def summarize_opinions(question_id: str):
     # Build prompt (light truncation to keep payload manageable)
     clipped = [op[:2000] for op in opinions]
     opinion_lines = "\n".join(f"- {op}" for op in clipped)
-    user_prompt = f"""You are an AI assistant tasked with providing a concise and honest summary of a set of anonymous opinions. 
+    user_prompt = f"""You are an AI assistant tasked with providing a concise and honest summary of a set of anonymous opinions with a bit of (british) humour. Also provide a general sentiment (positive, negative, mixed) towards the topic asked (this should come first). 
 
 Question:
 {question_text}
